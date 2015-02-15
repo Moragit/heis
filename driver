@@ -103,7 +103,23 @@ go get_button_signal(chan string ch){
 	//sjekk alle knapper, send hvis inntrykka
 	for{
 		switch{
-			case Io_read_bit(
+			case Io_read_bit(BUTTON_COMMAND1):
+				ch <- "Com_1"
+			case Io_read_bit(BUTTON_COMMAND2):
+				ch <- "Com_2"
+			case Io_read_bit(BUTTON_COMMAND3):
+				ch <- "Com_3"
+			case Io_read_bit(BUTTON_COMMAND4):
+				ch <- "Com_4"
+			case Io_read_bit(BUTTON_UP1):
+				ch <- "Up_1"
+			case Io_read_bit(BUTTON_UP2):
+				ch <- "Up_2"
+			case Io_read_bit(BUTTON_UP3):
+				ch <- "Up_3"
+			case Io_read_bit(BUTTON_DOWN1):
+				ch <- "Down_1"
+	
 	
 	
 }
