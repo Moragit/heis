@@ -1,0 +1,71 @@
+package main
+
+import (
+		"fmt"
+		"os/exec"
+		"time"
+		"encoding/json"
+		"net"
+		"log"
+)
+
+func main(){
+	start := 0
+	status := ""
+	temp,err := listen()
+	if err != nil{
+		status = "MASTER"
+	}else{
+		status = "SLAVE"
+	}
+	
+	switch {
+	case status == "MASTER":
+		cmd:= exec.Command("saex6.go") 
+		err := cmd.Start()
+		if err != nil {
+			log.Fatal(err)
+		}
+		for{
+			k := counter(start)
+			sendUDP(k)
+			time.Sleep(1000*time.Millisecond)
+		}
+			
+	case status == "SLAVE":
+		start = temp
+		for err != nil{
+			temp,err = listen()
+			start = temp
+		}
+	}
+
+}
+
+func counter(k int)int{
+	k=k+1;
+	fmt.Println(k)
+	fmt.Println(" ")	
+	return k
+}
+
+func sendUDP(k int){
+	intB,_ :=json.Marshal(k)
+	baddr,_ := net.ResolveUDPAddr("udp4", "255.255.255.255:")
+	tempConn,_ := net.DialUDP("udp4", nil, baddr)
+	tempConn.WriteToUDP(intB, baddr)	
+}
+
+func listen() (int, error){
+	buff := make([]byte,1024)
+	
+	baddr,_ := net.ResolveUDPAddr("udp4", "255.255.255.255:")
+	listenConn,_ := net.ListenUDP("udp4", baddr)
+	err := listenConn.SetReadDeadline(time.Now().Add(2000*time.Millisecond))
+	n,_,_ := listenConn.ReadFromUDP(buff)
+	k := 0
+	json.Unmarshal(buff[:n],k)
+	return k, err
+	//if ingen beskjeder inn -> exit
+	
+}
